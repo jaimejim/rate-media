@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+:root {
+  --background: #000000;
+  --foreground: #ededed;
+  --accent: #10B981;
+  --accent-dim: #059669;
+  --border: #333333;
+  --card-bg: #111111;
+  --score-low: #EF4444;
+  --score-medium: #F59E0B;
+  --score-high: #10B981;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-accent-dim: var(--accent-dim);
+  --color-border: var(--border);
+  --color-card-bg: var(--card-bg);
+  --color-score-low: var(--score-low);
+  --color-score-medium: var(--score-medium);
+  --color-score-high: var(--score-high);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* Custom slider styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  background: linear-gradient(to right, #3B82F6, #8B5CF6, #EF4444);
+  border-radius: 4px;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  background: #ffffff;
+  border: 2px solid #333;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  background: #ffffff;
+  border: 2px solid #333;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Score bar animation */
+.score-bar {
+  transition: width 0.5s ease-out;
+}
+
+/* Severity badge colors */
+.severity-low {
+  background-color: #22C55E;
+  color: #000;
+}
+
+.severity-moderate {
+  background-color: #F59E0B;
+  color: #000;
+}
+
+.severity-high {
+  background-color: #EF4444;
+  color: #fff;
+}
