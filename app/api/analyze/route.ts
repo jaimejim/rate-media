@@ -82,10 +82,12 @@ Include 2-4 concerns and 2-4 positives. Include 2-4 real source URLs from your w
       }
     }
 
-    // Clean up the response - remove markdown code blocks if present
+    // Clean up the response - remove markdown code blocks and citation tags
     textContent = textContent
       .replace(/```json\n?/g, '')
       .replace(/```\n?/g, '')
+      .replace(/<cite[^>]*>/g, '')  // Remove opening cite tags
+      .replace(/<\/cite>/g, '')      // Remove closing cite tags
       .trim();
 
     // Parse JSON response
@@ -100,17 +102,27 @@ Include 2-4 concerns and 2-4 positives. Include 2-4 real source URLs from your w
       );
     }
 
+    // Helper to strip citation tags from strings
+    const stripCitations = (text: string): string => {
+      if (!text) return text;
+      return text.replace(/<cite[^>]*>/g, '').replace(/<\/cite>/g, '');
+    };
+
     const analysis: MediaAnalysis = {
-      title: analysisData.title || title,
+      title: stripCitations(analysisData.title) || title,
       type: analysisData.type || 'unknown',
       year: analysisData.year,
       perspectiveLevel: level,
       perspectiveLabel,
-      summary: analysisData.summary || '',
+      summary: stripCitations(analysisData.summary) || '',
       rating: analysisData.rating || 5,
-      ratingExplanation: analysisData.ratingExplanation || '',
-      concerns: analysisData.concerns || [],
-      positives: analysisData.positives || [],
+      ratingExplanation: stripCitations(analysisData.ratingExplanation) || '',
+      concerns: (analysisData.concerns || []).map((c: { issue: string; severity: string; details: string }) => ({
+        ...c,
+        issue: stripCitations(c.issue),
+        details: stripCitations(c.details),
+      })),
+      positives: (analysisData.positives || []).map((p: string) => stripCitations(p)),
       sources: analysisData.sources || [],
       disclaimer: `This analysis reflects a ${perspectiveLabel} perspective (level ${level}/10). Different viewpoints may interpret this content differently.`,
     };
