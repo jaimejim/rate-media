@@ -66,7 +66,7 @@ export default function ReportPage() {
         <header className="border-b border-gray-800 p-4">
           <div className="max-w-2xl mx-auto">
             <Link href="/" className="text-xl font-bold text-green-500 uppercase tracking-wider hover:text-green-400">
-              RATE MEDIA
+              TV RATINGS
             </Link>
           </div>
         </header>
@@ -86,7 +86,7 @@ export default function ReportPage() {
         <header className="border-b border-gray-800 p-4">
           <div className="max-w-2xl mx-auto">
             <Link href="/" className="text-xl font-bold text-green-500 uppercase tracking-wider hover:text-green-400">
-              RATE MEDIA
+              TV RATINGS
             </Link>
           </div>
         </header>
@@ -118,7 +118,7 @@ export default function ReportPage() {
       <header className="border-b border-gray-800 p-4">
         <div className="max-w-2xl mx-auto flex justify-between items-center">
           <Link href="/" className="text-xl font-bold text-green-500 uppercase tracking-wider hover:text-green-400">
-            RATE MEDIA
+            TV RATINGS
           </Link>
           <span className="text-gray-600 text-xs uppercase">
             Report

@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Rate Media - Movie & TV Show Analysis by Perspective",
-  description: "Get movie and TV show ratings from different ideological perspectives. From progressive to traditional viewpoints.",
-  keywords: ["movie ratings", "tv show ratings", "content analysis", "family friendly", "media reviews"],
+  title: "TV Ratings - Content Analysis by Perspective",
+  description: "Get movie and TV show ratings from different ideological perspectives.",
 };
 
 export default function RootLayout({

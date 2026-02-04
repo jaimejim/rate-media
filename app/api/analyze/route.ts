@@ -90,14 +90,24 @@ Include 2-4 concerns and 2-4 positives. Include 2-4 real source URLs from your w
       .replace(/<\/cite>/g, '')      // Remove closing cite tags
       .trim();
 
+    // Try to extract JSON object from text (in case there's extra text around it)
+    const jsonMatch = textContent.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      console.error('No JSON found in response:', textContent.substring(0, 500));
+      return NextResponse.json(
+        { status: 'error', error: `No valid JSON in response. Raw: ${textContent.substring(0, 200)}...` },
+        { status: 500 }
+      );
+    }
+
     // Parse JSON response
     let analysisData;
     try {
-      analysisData = JSON.parse(textContent);
-    } catch {
-      console.error('Failed to parse Claude response:', textContent);
+      analysisData = JSON.parse(jsonMatch[0]);
+    } catch (parseError) {
+      console.error('Failed to parse Claude response:', textContent.substring(0, 500));
       return NextResponse.json(
-        { status: 'error', error: 'Failed to parse analysis response' },
+        { status: 'error', error: `JSON parse error: ${parseError instanceof Error ? parseError.message : 'Unknown'}. Check server logs.` },
         { status: 500 }
       );
     }
