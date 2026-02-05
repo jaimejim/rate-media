@@ -26,25 +26,34 @@ export async function POST(request: NextRequest) {
     const prompt = `You are a media content analyst. Analyze the movie or TV show "${title}" from a ${perspectiveDescription}.
 
 Your task:
-1. Search for information about "${title}" including its plot, themes, content warnings, and reviews
-2. Evaluate the content from the specified perspective (level ${level}/10 where 0=progressive/LGBTQ-friendly and 10=traditional/conservative)
+1. Search for information about "${title}" including plot, themes, reviews, AND any controversies or cultural discourse surrounding it
+2. Analyze BOTH the on-screen content AND the meta-level context:
+   - ON-SCREEN: What happens in the story, characters, themes, explicit content
+   - META/SUBTEXT: Casting decisions, production choices, cultural messaging, industry politics, public controversies, what critics and audiences from this perspective have said
 3. Provide a rating from 1-10 where:
    - For levels 0-4 (progressive): Higher scores mean more inclusive/progressive content
    - For levels 5-10 (conservative): Higher scores mean more family-friendly/traditional content
 
-Focus on aspects relevant to the ${perspectiveLabel} viewpoint such as:
+Focus on aspects relevant to the ${perspectiveLabel} viewpoint:
+
+ON-SCREEN CONTENT:
 ${level <= 4 ?
-  '- LGBTQ+ representation and positive portrayal\n- Diversity and inclusivity\n- Progressive social messages\n- Challenging traditional norms\n- Representation of marginalized groups' :
-  '- Traditional family values\n- Religious/moral content\n- Sexual content and violence levels\n- Language appropriateness\n- Messages about marriage, family, and faith\n- Race-swapping or historically inaccurate casting choices\n- Perceived "woke" agenda or forced diversity\n- Changes from source material for political reasons'}
+  '- LGBTQ+ characters and relationships\n- Diverse casting and representation\n- Progressive themes and messages\n- Subversion of traditional gender roles' :
+  '- Traditional family structures\n- Religious or moral messaging\n- Sexual content, violence, language\n- Respect for traditional values'}
+
+META/SUBTEXT (equally important):
+${level <= 4 ?
+  '- Hiring of diverse cast/crew\n- Studio support for progressive causes\n- Breaking industry barriers\n- Cultural impact on representation' :
+  '- Race-swapping from source material\n- Perceived political agenda in casting/writing\n- Changes made for "diversity" over story\n- Controversy and backlash from traditional audiences\n- Actor/director political statements'}
 
 Return ONLY a JSON object with this exact structure (no markdown, no code blocks):
 {
   "title": "exact title of the media",
   "type": "movie" or "tv_show",
   "year": "release year if known",
-  "summary": "2-3 sentence summary of the content from the specified perspective",
+  "summary": "2-3 sentences covering BOTH the story content AND the meta/cultural context from this perspective",
   "rating": number from 1-10,
-  "ratingExplanation": "brief explanation of the rating from this perspective",
+  "ratingExplanation": "brief explanation considering both content and subtext",
   "concerns": [
     {"issue": "specific concern", "severity": "low|moderate|high", "details": "brief details"}
   ],
@@ -54,7 +63,7 @@ Return ONLY a JSON object with this exact structure (no markdown, no code blocks
   ]
 }
 
-Include 2-4 concerns and 2-4 positives. Include 2-4 real source URLs from your web search.`;
+Include 2-4 concerns (mix of on-screen and meta issues) and 2-4 positives. Include 2-4 real source URLs.`;
 
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
