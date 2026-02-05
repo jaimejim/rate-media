@@ -6,9 +6,11 @@ import ScoreDisplay from './ScoreDisplay';
 
 interface ResultCardProps {
   analysis: MediaAnalysis;
+  onRegenerate?: () => void;
+  isRegenerating?: boolean;
 }
 
-export default function ResultCard({ analysis }: ResultCardProps) {
+export default function ResultCard({ analysis, onRegenerate, isRegenerating }: ResultCardProps) {
   const [copied, setCopied] = useState(false);
 
   const handleShare = async () => {
@@ -39,22 +41,43 @@ export default function ResultCard({ analysis }: ResultCardProps) {
           <span className="text-xs bg-blue-900/50 text-blue-400 px-2 py-1 rounded">
             {analysis.perspectiveLabel} ({analysis.perspectiveLevel}/10)
           </span>
-          {/* Share Icon */}
-          <button
-            onClick={handleShare}
-            className="ml-auto p-1.5 text-gray-400 hover:text-blue-400 transition-colors"
-            title="Share"
-          >
-            {copied ? (
-              <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            ) : (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-              </svg>
+          {/* Action Icons */}
+          <div className="ml-auto flex items-center gap-1">
+            {/* Regenerate Icon */}
+            {onRegenerate && (
+              <button
+                onClick={onRegenerate}
+                disabled={isRegenerating}
+                className="p-1.5 text-gray-400 hover:text-yellow-400 transition-colors disabled:opacity-50"
+                title="Regenerate analysis"
+              >
+                <svg
+                  className={`w-5 h-5 ${isRegenerating ? 'animate-spin' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
             )}
-          </button>
+            {/* Share Icon */}
+            <button
+              onClick={handleShare}
+              className="p-1.5 text-gray-400 hover:text-blue-400 transition-colors"
+              title="Share"
+            >
+              {copied ? (
+                <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 

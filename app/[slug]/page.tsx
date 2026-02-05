@@ -14,21 +14,51 @@ export default function ReportPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
   const slug = params.slug as string;
   const level = parseInt(searchParams.get('level') || '5');
   const title = decodeSlug(slug);
 
+  // Regenerate analysis
+  const handleRegenerate = async () => {
+    setIsRegenerating(true);
+    setElapsedTime(0);
+    setError('');
+
+    try {
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, level }),
+      });
+
+      const result = await response.json();
+      if (result.status === 'success') {
+        setAnalysis(result.data);
+        // Update cache
+        const cacheKey = getCacheKey(title, level);
+        localStorage.setItem(cacheKey, JSON.stringify(result.data));
+      } else {
+        setError(result.error || 'Failed to regenerate analysis');
+      }
+    } catch {
+      setError('Network error. Please try again.');
+    } finally {
+      setIsRegenerating(false);
+    }
+  };
+
   // Elapsed time counter
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (loading && !analysis) {
+    if ((loading && !analysis) || isRegenerating) {
       interval = setInterval(() => {
         setElapsedTime(t => t + 0.1);
       }, 100);
     }
     return () => clearInterval(interval);
-  }, [loading, analysis]);
+  }, [loading, analysis, isRegenerating]);
 
   useEffect(() => {
     // Try sessionStorage first (from navigation)
@@ -157,7 +187,11 @@ export default function ReportPage() {
 
       <main className="flex-1 p-4">
         <div className="max-w-2xl mx-auto py-2">
-          <ResultCard analysis={analysis} />
+          <ResultCard
+            analysis={analysis}
+            onRegenerate={handleRegenerate}
+            isRegenerating={isRegenerating}
+          />
         </div>
       </main>
     </div>

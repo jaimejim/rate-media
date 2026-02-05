@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { NextRequest, NextResponse } from 'next/server';
 import { MediaAnalysis, getPerspectiveLabel, getPerspectiveDescription } from '@/lib/types';
+import { findSeedData } from '@/lib/seedData';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -50,6 +51,13 @@ export async function POST(request: NextRequest) {
         { status: 'error', error: 'Invalid request. Title and level (0-10) are required.' },
         { status: 400 }
       );
+    }
+
+    // Check seed data first (for pre-populated popular titles)
+    const seeded = findSeedData(title, level);
+    if (seeded) {
+      console.log(`Serving seed data for: ${title} at level ${level}`);
+      return NextResponse.json({ status: 'success', data: seeded });
     }
 
     const perspectiveLabel = getPerspectiveLabel(level);
