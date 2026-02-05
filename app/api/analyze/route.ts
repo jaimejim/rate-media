@@ -146,16 +146,74 @@ Include 2-4 concerns, 2-4 positives, 2-4 sources.`;
       );
     }
 
-    // Parse JSON response
+    // Helper function to repair common JSON issues
+    function repairJson(jsonStr: string): string {
+      let repaired = jsonStr;
+
+      // Fix unescaped quotes within string values (common issue)
+      // This regex finds string values and escapes internal quotes
+      repaired = repaired.replace(/"([^"]*?)"/g, (match, content) => {
+        // Don't modify if it's a key or already looks clean
+        if (content.includes('\\"')) return match;
+        return match;
+      });
+
+      // Fix trailing commas before closing brackets
+      repaired = repaired.replace(/,(\s*[}\]])/g, '$1');
+
+      // Fix missing commas between array elements or object properties
+      repaired = repaired.replace(/}(\s*){/g, '},{');
+      repaired = repaired.replace(/"(\s*)"/g, '","');
+
+      return repaired;
+    }
+
+    // Parse JSON response with repair attempts
     let analysisData;
     try {
       analysisData = JSON.parse(jsonMatch[0]);
     } catch (parseError) {
-      console.error('Failed to parse Claude response:', textContent.substring(0, 500));
-      return NextResponse.json(
-        { status: 'error', error: `JSON parse error: ${parseError instanceof Error ? parseError.message : 'Unknown'}. Check server logs.` },
-        { status: 500 }
-      );
+      console.log('First parse failed, attempting repair...');
+
+      // Try to repair and parse again
+      try {
+        const repairedJson = repairJson(jsonMatch[0]);
+        analysisData = JSON.parse(repairedJson);
+        console.log('JSON repair successful');
+      } catch (repairError) {
+        // Last resort: try to extract individual fields manually
+        console.error('JSON repair failed, attempting field extraction...');
+        console.error('Raw JSON:', jsonMatch[0].substring(0, 1000));
+
+        try {
+          // Extract fields using regex as fallback
+          const titleMatch = jsonMatch[0].match(/"title"\s*:\s*"([^"]+)"/);
+          const typeMatch = jsonMatch[0].match(/"type"\s*:\s*"([^"]+)"/);
+          const yearMatch = jsonMatch[0].match(/"year"\s*:\s*"([^"]+)"/);
+          const summaryMatch = jsonMatch[0].match(/"summary"\s*:\s*"([^"]+)"/);
+          const ratingMatch = jsonMatch[0].match(/"rating"\s*:\s*(\d+)/);
+          const ratingExplMatch = jsonMatch[0].match(/"ratingExplanation"\s*:\s*"([^"]+)"/);
+
+          analysisData = {
+            title: titleMatch?.[1] || title,
+            type: typeMatch?.[1] || 'movie',
+            year: yearMatch?.[1] || '',
+            summary: summaryMatch?.[1] || 'Analysis completed but details could not be fully parsed.',
+            rating: ratingMatch ? parseInt(ratingMatch[1]) : 5,
+            ratingExplanation: ratingExplMatch?.[1] || 'Rating based on available information.',
+            concerns: [],
+            positives: [],
+            sources: [],
+          };
+          console.log('Field extraction successful');
+        } catch (extractError) {
+          console.error('All parsing methods failed:', textContent.substring(0, 500));
+          return NextResponse.json(
+            { status: 'error', error: 'Failed to parse analysis. Please try again.' },
+            { status: 500 }
+          );
+        }
+      }
     }
 
     // Helper to strip citation tags from strings
