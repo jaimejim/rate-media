@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { NextRequest, NextResponse } from 'next/server';
 import { MediaAnalysis, getPerspectiveLabel, getPerspectiveDescription } from '@/lib/types';
 import { findSeedData } from '@/lib/seedData';
+import { getCachedAnalysis, setCachedAnalysis } from '@/lib/cache';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -44,7 +45,7 @@ async function withRetry<T>(
 
 export async function POST(request: NextRequest) {
   try {
-    const { title, level } = await request.json();
+    const { title, level, skipCache } = await request.json();
 
     if (!title || typeof level !== 'number' || level < 0 || level > 10) {
       return NextResponse.json(
@@ -53,11 +54,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check seed data first (for pre-populated popular titles)
-    const seeded = findSeedData(title, level);
-    if (seeded) {
-      console.log(`Serving seed data for: ${title} at level ${level}`);
-      return NextResponse.json({ status: 'success', data: seeded });
+    // Check seed data first (for pre-populated popular titles) - unless regenerating
+    if (!skipCache) {
+      const seeded = findSeedData(title, level);
+      if (seeded) {
+        console.log(`Serving seed data for: ${title} at level ${level}`);
+        return NextResponse.json({ status: 'success', data: seeded });
+      }
+
+      // Check Redis/memory cache
+      const cached = await getCachedAnalysis(title, level);
+      if (cached) {
+        console.log(`Serving cached data for: ${title} at level ${level}`);
+        return NextResponse.json({ status: 'success', data: cached });
+      }
     }
 
     const perspectiveLabel = getPerspectiveLabel(level);
@@ -172,6 +182,9 @@ Include 2-4 concerns, 2-4 positives, 2-4 sources.`;
       sources: analysisData.sources || [],
       disclaimer: `This analysis reflects a ${perspectiveLabel} perspective (level ${level}/10). Different viewpoints may interpret this content differently.`,
     };
+
+    // Cache the result for future requests
+    await setCachedAnalysis(title, level, analysis);
 
     return NextResponse.json({ status: 'success', data: analysis });
   } catch (error) {

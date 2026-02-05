@@ -30,7 +30,7 @@ export default function ReportPage() {
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, level }),
+        body: JSON.stringify({ title, level, skipCache: true }),
       });
 
       const result = await response.json();
