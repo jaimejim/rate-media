@@ -65,7 +65,7 @@ export default function Home() {
         const data = JSON.parse(cached) as MediaAnalysis;
         sessionStorage.setItem('analysisResult', cached);
         const slug = createSlug(data.title);
-        router.push(`/report/${slug}?level=${level}`);
+        router.push(`/${slug}?level=${level}`);
         return;
       } catch {
         // Cache invalid, continue to fetch
@@ -90,7 +90,7 @@ export default function Home() {
         localStorage.setItem(cacheKey, JSON.stringify(result.data));
         sessionStorage.setItem('analysisResult', JSON.stringify(result.data));
         const slug = createSlug(result.data.title);
-        router.push(`/report/${slug}?level=${level}`);
+        router.push(`/${slug}?level=${level}`);
       } else {
         setError(result.error || 'Analysis failed');
       }
@@ -153,7 +153,7 @@ export default function Home() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Movie or TV show name"
-                className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-green-500 text-sm"
+                className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-green-500 text-base"
                 disabled={isLoading}
               />
             </div>

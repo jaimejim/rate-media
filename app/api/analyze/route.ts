@@ -34,8 +34,8 @@ Your task:
 
 Focus on aspects relevant to the ${perspectiveLabel} viewpoint such as:
 ${level <= 4 ?
-  '- LGBTQ+ representation and positive portrayal\n- Diversity and inclusivity\n- Progressive social messages\n- Challenging traditional norms' :
-  '- Traditional family values\n- Religious/moral content\n- Sexual content and violence levels\n- Language appropriateness\n- Messages about marriage, family, and faith'}
+  '- LGBTQ+ representation and positive portrayal\n- Diversity and inclusivity\n- Progressive social messages\n- Challenging traditional norms\n- Representation of marginalized groups' :
+  '- Traditional family values\n- Religious/moral content\n- Sexual content and violence levels\n- Language appropriateness\n- Messages about marriage, family, and faith\n- Race-swapping or historically inaccurate casting choices\n- Perceived "woke" agenda or forced diversity\n- Changes from source material for political reasons'}
 
 Return ONLY a JSON object with this exact structure (no markdown, no code blocks):
 {
