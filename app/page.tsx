@@ -133,8 +133,8 @@ export default function Home() {
               />
 
               <div className="flex justify-between text-[10px] text-gray-600 mt-1">
-                <span>🌈 Progressive</span>
-                <span>Traditional ✝️</span>
+                <span>Progressive</span>
+                <span>Traditional</span>
               </div>
 
               {/* Tagline */}
