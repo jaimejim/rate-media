@@ -8,57 +8,127 @@ interface ResultCardProps {
   analysis: MediaAnalysis;
 }
 
+function getQuip(perspectiveLevel: number, rating: number): { text: string; color: string } {
+  const isConservative = perspectiveLevel >= 7;
+  const isProgressive = perspectiveLevel <= 3;
+  const isLowRating = rating <= 4;
+  const isHighRating = rating >= 7;
+
+  // Conservative perspective (7-10)
+  if (isConservative) {
+    if (isLowRating) {
+      const quips = [
+        "Woke garbage",
+        "Hard pass",
+        "Not for traditional families",
+        "Hollywood agenda alert",
+        "Skip this one",
+        "Morally bankrupt"
+      ];
+      return { text: quips[Math.floor(Math.random() * quips.length)], color: "text-red-500" };
+    }
+    if (isHighRating) {
+      const quips = [
+        "Family approved",
+        "Wholesome content",
+        "Safe for movie night",
+        "Traditional values intact",
+        "A breath of fresh air",
+        "Finally, something decent"
+      ];
+      return { text: quips[Math.floor(Math.random() * quips.length)], color: "text-green-500" };
+    }
+    return { text: "Proceed with caution", color: "text-yellow-500" };
+  }
+
+  // Progressive perspective (0-3)
+  if (isProgressive) {
+    if (isLowRating) {
+      const quips = [
+        "Problematic content",
+        "Outdated and harmful",
+        "Representation? What representation?",
+        "Do better, Hollywood",
+        "Yikes, not this",
+        "Stuck in the past"
+      ];
+      return { text: quips[Math.floor(Math.random() * quips.length)], color: "text-red-500" };
+    }
+    if (isHighRating) {
+      const quips = [
+        "Representation done right",
+        "Inclusive excellence",
+        "This is the way",
+        "Progress in action",
+        "Finally, real diversity",
+        "A win for everyone"
+      ];
+      return { text: quips[Math.floor(Math.random() * quips.length)], color: "text-green-500" };
+    }
+    return { text: "Room for improvement", color: "text-yellow-500" };
+  }
+
+  // Balanced perspective (4-6)
+  if (isLowRating) {
+    return { text: "Not great, not terrible", color: "text-yellow-500" };
+  }
+  if (isHighRating) {
+    return { text: "Solid entertainment", color: "text-green-500" };
+  }
+  return { text: "Average fare", color: "text-gray-400" };
+}
+
 export default function ResultCard({ analysis }: ResultCardProps) {
+  const quip = getQuip(analysis.perspectiveLevel, analysis.rating);
+
   const handleShare = async () => {
     const url = window.location.href;
     try {
       await navigator.clipboard.writeText(url);
       alert('Link copied to clipboard!');
     } catch {
-      // Fallback for browsers that don't support clipboard API
       prompt('Copy this link:', url);
     }
   };
 
   return (
     <div className="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden">
-      {/* Header */}
-      <div className="p-6 border-b border-gray-800">
-        <div className="flex justify-between items-start mb-2">
-          <div>
-            <h2 className="text-2xl font-bold text-white">{analysis.title}</h2>
-            <div className="flex gap-2 mt-2">
-              <span className="text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded uppercase">
-                {analysis.type === 'tv_show' ? 'TV Show' : analysis.type === 'movie' ? 'Movie' : 'Media'}
-              </span>
-              {analysis.year && (
-                <span className="text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded">
-                  {analysis.year}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
+      {/* Quip Banner */}
+      <div className="p-4 border-b border-gray-800 bg-gray-950 text-center">
+        <span className={`text-xl font-bold uppercase tracking-wider ${quip.color}`}>
+          "{quip.text}"
+        </span>
+      </div>
 
-        {/* Perspective Badge */}
-        <div className="mt-4 inline-flex items-center gap-2 bg-blue-900/30 border border-blue-800 rounded px-3 py-2">
-          <span className="text-xs text-blue-400 uppercase tracking-wider">Perspective:</span>
-          <span className="text-sm text-white font-medium">{analysis.perspectiveLabel}</span>
-          <span className="text-xs text-gray-500">({analysis.perspectiveLevel}/10)</span>
+      {/* Header */}
+      <div className="p-4 border-b border-gray-800">
+        <h2 className="text-xl font-bold text-white">{analysis.title}</h2>
+        <div className="flex flex-wrap gap-2 mt-2">
+          <span className="text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded uppercase">
+            {analysis.type === 'tv_show' ? 'TV Show' : analysis.type === 'movie' ? 'Movie' : 'Media'}
+          </span>
+          {analysis.year && (
+            <span className="text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded">
+              {analysis.year}
+            </span>
+          )}
+          <span className="text-xs bg-blue-900/50 text-blue-400 px-2 py-1 rounded">
+            {analysis.perspectiveLabel} ({analysis.perspectiveLevel}/10)
+          </span>
         </div>
       </div>
 
       {/* Summary */}
-      <div className="p-6 border-b border-gray-800">
-        <h3 className="text-sm uppercase tracking-wider text-gray-400 mb-3">Summary</h3>
-        <p className="text-gray-300 leading-relaxed">{analysis.summary}</p>
+      <div className="p-4 border-b border-gray-800">
+        <h3 className="text-xs uppercase tracking-wider text-gray-500 mb-2">Summary</h3>
+        <p className="text-gray-300 text-sm leading-relaxed">{analysis.summary}</p>
       </div>
 
       {/* Rating */}
-      <div className="p-6 border-b border-gray-800">
+      <div className="p-4 border-b border-gray-800">
         <ScoreDisplay
           score={analysis.rating}
-          label="Overall Rating"
+          label="Rating"
           subtitle={analysis.ratingExplanation}
           size="large"
         />
@@ -66,17 +136,17 @@ export default function ResultCard({ analysis }: ResultCardProps) {
 
       {/* Concerns */}
       {analysis.concerns && analysis.concerns.length > 0 && (
-        <div className="p-6 border-b border-gray-800">
-          <h3 className="text-sm uppercase tracking-wider text-gray-400 mb-4">Content Concerns</h3>
-          <ul className="space-y-3">
+        <div className="p-4 border-b border-gray-800">
+          <h3 className="text-xs uppercase tracking-wider text-gray-500 mb-3">Concerns</h3>
+          <ul className="space-y-2">
             {analysis.concerns.map((concern, index) => (
-              <li key={index} className="flex items-start gap-3">
-                <span className={`severity-${concern.severity} text-xs px-2 py-1 rounded uppercase font-bold flex-shrink-0`}>
+              <li key={index} className="flex items-start gap-2">
+                <span className={`severity-${concern.severity} text-[10px] px-1.5 py-0.5 rounded uppercase font-bold flex-shrink-0`}>
                   {concern.severity}
                 </span>
-                <div>
-                  <span className="text-white font-medium">{concern.issue}</span>
-                  <p className="text-gray-500 text-sm mt-1">{concern.details}</p>
+                <div className="text-sm">
+                  <span className="text-white">{concern.issue}</span>
+                  <span className="text-gray-500"> — {concern.details}</span>
                 </div>
               </li>
             ))}
@@ -86,12 +156,12 @@ export default function ResultCard({ analysis }: ResultCardProps) {
 
       {/* Positives */}
       {analysis.positives && analysis.positives.length > 0 && (
-        <div className="p-6 border-b border-gray-800">
-          <h3 className="text-sm uppercase tracking-wider text-gray-400 mb-4">Positive Aspects</h3>
-          <ul className="space-y-2">
+        <div className="p-4 border-b border-gray-800">
+          <h3 className="text-xs uppercase tracking-wider text-gray-500 mb-3">Positives</h3>
+          <ul className="space-y-1">
             {analysis.positives.map((positive, index) => (
-              <li key={index} className="flex items-start gap-2">
-                <span className="text-green-500 mt-0.5">✓</span>
+              <li key={index} className="flex items-start gap-2 text-sm">
+                <span className="text-green-500">✓</span>
                 <span className="text-gray-300">{positive}</span>
               </li>
             ))}
@@ -101,16 +171,16 @@ export default function ResultCard({ analysis }: ResultCardProps) {
 
       {/* Sources */}
       {analysis.sources && analysis.sources.length > 0 && (
-        <div className="p-6 border-b border-gray-800">
-          <h3 className="text-sm uppercase tracking-wider text-gray-400 mb-4">Sources</h3>
-          <ul className="space-y-2">
+        <div className="p-4 border-b border-gray-800">
+          <h3 className="text-xs uppercase tracking-wider text-gray-500 mb-2">Sources</h3>
+          <ul className="space-y-1">
             {analysis.sources.map((source, index) => (
               <li key={index}>
                 <a
                   href={source.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-400 hover:text-blue-300 text-sm underline"
+                  className="text-blue-400 hover:text-blue-300 text-xs underline"
                 >
                   {source.title}
                 </a>
@@ -121,25 +191,25 @@ export default function ResultCard({ analysis }: ResultCardProps) {
       )}
 
       {/* Disclaimer */}
-      <div className="p-6 border-b border-gray-800 bg-yellow-900/20">
-        <p className="text-yellow-600 text-xs">
+      <div className="p-3 border-b border-gray-800 bg-yellow-900/20">
+        <p className="text-yellow-600 text-[10px]">
           <strong>Disclaimer:</strong> {analysis.disclaimer}
         </p>
       </div>
 
       {/* Actions */}
-      <div className="p-6 flex gap-4">
+      <div className="p-4 flex gap-3">
         <button
           onClick={handleShare}
-          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded uppercase tracking-wider text-sm transition-colors"
+          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded uppercase tracking-wider text-xs"
         >
-          Share Report
+          Share
         </button>
         <Link
           href="/"
-          className="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded uppercase tracking-wider text-sm transition-colors text-center"
+          className="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded uppercase tracking-wider text-xs text-center"
         >
-          New Analysis
+          New
         </Link>
       </div>
     </div>
