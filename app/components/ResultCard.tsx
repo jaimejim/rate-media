@@ -8,119 +8,8 @@ interface ResultCardProps {
   analysis: MediaAnalysis;
 }
 
-function getQuip(perspectiveLevel: number, rating: number): { text: string; color: string } {
-  const isLowRating = rating <= 4;
-  const isHighRating = rating >= 7;
-
-  // Extreme conservative (10)
-  if (perspectiveLevel === 10) {
-    if (isLowRating) {
-      const quips = [
-        "Satanic filth",
-        "Abomination unto the Lord",
-        "Modernist degeneracy",
-        "The devil's entertainment",
-        "Burn it with holy fire"
-      ];
-      return { text: quips[Math.floor(Math.random() * quips.length)], color: "text-red-600" };
-    }
-    if (isHighRating) {
-      const quips = [
-        "Deus Vult approved",
-        "Blessed content",
-        "Worthy of a Catholic household",
-        "The Lord smiles upon this",
-        "Tradition preserved"
-      ];
-      return { text: quips[Math.floor(Math.random() * quips.length)], color: "text-yellow-500" };
-    }
-    return { text: "Proceed with prayer", color: "text-yellow-600" };
-  }
-
-  // Extreme progressive (0)
-  if (perspectiveLevel === 0) {
-    if (isLowRating) {
-      const quips = [
-        "Cishet garbage",
-        "Colonizer propaganda",
-        "Literally violence",
-        "Problematic beyond repair",
-        "Cancel this immediately"
-      ];
-      return { text: quips[Math.floor(Math.random() * quips.length)], color: "text-red-500" };
-    }
-    if (isHighRating) {
-      const quips = [
-        "Yasss queen energy",
-        "Revolutionary content",
-        "Smashing the patriarchy",
-        "Intersectional excellence",
-        "Finally, real representation"
-      ];
-      return { text: quips[Math.floor(Math.random() * quips.length)], color: "text-pink-500" };
-    }
-    return { text: "Could be queerer", color: "text-purple-400" };
-  }
-
-  // Conservative (7-9)
-  if (perspectiveLevel >= 7) {
-    if (isLowRating) {
-      const quips = [
-        "Woke garbage",
-        "Hard pass",
-        "Not for families",
-        "Hollywood agenda",
-        "Skip this one"
-      ];
-      return { text: quips[Math.floor(Math.random() * quips.length)], color: "text-red-500" };
-    }
-    if (isHighRating) {
-      const quips = [
-        "Family approved",
-        "Wholesome content",
-        "Safe for movie night",
-        "Values intact",
-        "Finally, something decent"
-      ];
-      return { text: quips[Math.floor(Math.random() * quips.length)], color: "text-green-500" };
-    }
-    return { text: "Proceed with caution", color: "text-yellow-500" };
-  }
-
-  // Progressive (1-3)
-  if (perspectiveLevel <= 3) {
-    if (isLowRating) {
-      const quips = [
-        "Problematic content",
-        "Outdated views",
-        "Lacking representation",
-        "Do better",
-        "Not it, chief"
-      ];
-      return { text: quips[Math.floor(Math.random() * quips.length)], color: "text-red-500" };
-    }
-    if (isHighRating) {
-      const quips = [
-        "Rep done right",
-        "Inclusive excellence",
-        "Progress in action",
-        "This is the way",
-        "A win for diversity"
-      ];
-      return { text: quips[Math.floor(Math.random() * quips.length)], color: "text-green-500" };
-    }
-    return { text: "Room to improve", color: "text-yellow-500" };
-  }
-
-  // Balanced (4-6)
-  if (isLowRating) return { text: "Not great", color: "text-yellow-500" };
-  if (isHighRating) return { text: "Solid watch", color: "text-green-500" };
-  return { text: "Average", color: "text-gray-400" };
-}
-
 export default function ResultCard({ analysis }: ResultCardProps) {
   const [copied, setCopied] = useState(false);
-  const quip = getQuip(analysis.perspectiveLevel, analysis.rating);
 
   const handleShare = async () => {
     const url = window.location.href;
@@ -135,13 +24,6 @@ export default function ResultCard({ analysis }: ResultCardProps) {
 
   return (
     <div className="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden">
-      {/* Quip Banner */}
-      <div className="p-4 border-b border-gray-800 bg-gray-950 text-center">
-        <span className={`text-xl font-bold uppercase tracking-wider ${quip.color}`}>
-          "{quip.text}"
-        </span>
-      </div>
-
       {/* Header */}
       <div className="p-4 border-b border-gray-800">
         <h2 className="text-xl font-bold text-white">{analysis.title}</h2>
@@ -176,13 +58,7 @@ export default function ResultCard({ analysis }: ResultCardProps) {
         </div>
       </div>
 
-      {/* Summary */}
-      <div className="p-4 border-b border-gray-800">
-        <h3 className="text-xs uppercase tracking-wider text-gray-500 mb-2">Summary</h3>
-        <p className="text-gray-300 text-sm leading-relaxed">{analysis.summary}</p>
-      </div>
-
-      {/* Rating */}
+      {/* Rating - moved up */}
       <div className="p-4 border-b border-gray-800">
         <ScoreDisplay
           score={analysis.rating}
@@ -192,23 +68,40 @@ export default function ResultCard({ analysis }: ResultCardProps) {
         />
       </div>
 
-      {/* Concerns */}
+      {/* Summary */}
+      <div className="p-4 border-b border-gray-800">
+        <h3 className="text-xs uppercase tracking-wider text-gray-500 mb-2">Summary</h3>
+        <p className="text-gray-300 text-sm leading-relaxed">{analysis.summary}</p>
+      </div>
+
+      {/* Concerns - Table Format */}
       {analysis.concerns && analysis.concerns.length > 0 && (
         <div className="p-4 border-b border-gray-800">
           <h3 className="text-xs uppercase tracking-wider text-gray-500 mb-3">Concerns</h3>
-          <ul className="space-y-2">
-            {analysis.concerns.map((concern, index) => (
-              <li key={index} className="flex items-start gap-2">
-                <span className={`severity-${concern.severity} text-[10px] px-1.5 py-0.5 rounded uppercase font-bold flex-shrink-0`}>
-                  {concern.severity}
-                </span>
-                <div className="text-sm">
-                  <span className="text-white">{concern.issue}</span>
-                  <span className="text-gray-500"> — {concern.details}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-700">
+                  <th className="text-left py-2 pr-3 text-[10px] uppercase text-gray-500 font-medium w-20">Level</th>
+                  <th className="text-left py-2 pr-3 text-[10px] uppercase text-gray-500 font-medium w-32">Issue</th>
+                  <th className="text-left py-2 text-[10px] uppercase text-gray-500 font-medium">Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                {analysis.concerns.map((concern, index) => (
+                  <tr key={index} className="border-b border-gray-800/50 last:border-0">
+                    <td className="py-2 pr-3 align-top">
+                      <span className={`severity-${concern.severity} text-[10px] px-1.5 py-0.5 rounded uppercase font-bold`}>
+                        {concern.severity}
+                      </span>
+                    </td>
+                    <td className="py-2 pr-3 align-top text-white font-medium">{concern.issue}</td>
+                    <td className="py-2 align-top text-gray-400">{concern.details}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
@@ -219,7 +112,7 @@ export default function ResultCard({ analysis }: ResultCardProps) {
           <ul className="space-y-1">
             {analysis.positives.map((positive, index) => (
               <li key={index} className="flex items-start gap-2 text-sm">
-                <span className="text-green-500">✓</span>
+                <span className="text-green-500">+</span>
                 <span className="text-gray-300">{positive}</span>
               </li>
             ))}
@@ -229,7 +122,7 @@ export default function ResultCard({ analysis }: ResultCardProps) {
 
       {/* Sources */}
       {analysis.sources && analysis.sources.length > 0 && (
-        <div className="p-4 border-b border-gray-800">
+        <div className="p-4">
           <h3 className="text-xs uppercase tracking-wider text-gray-500 mb-2">Sources</h3>
           <ul className="space-y-1">
             {analysis.sources.map((source, index) => (
@@ -247,13 +140,6 @@ export default function ResultCard({ analysis }: ResultCardProps) {
           </ul>
         </div>
       )}
-
-      {/* Disclaimer */}
-      <div className="p-3 bg-yellow-900/20">
-        <p className="text-yellow-600 text-[10px]">
-          <strong>Note:</strong> {analysis.disclaimer}
-        </p>
-      </div>
     </div>
   );
 }

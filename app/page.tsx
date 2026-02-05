@@ -185,17 +185,11 @@ export default function Home() {
             </button>
           </form>
 
-          {/* Fun disclaimer based on level */}
-          <div className="mt-4 text-center text-[10px] text-gray-600">
-            {level <= 2 && "We'll check if the straights are okay with this one"}
-            {level === 3 && "Looking for that diverse ensemble cast"}
-            {level === 4 && "Mild takes only, please"}
-            {level === 5 && "Peak enlightened centrism incoming"}
-            {level === 6 && "Things were better in the 90s, right?"}
-            {level === 7 && "Will Grandma approve?"}
-            {level === 8 && "Checking for family movie night suitability"}
-            {level === 9 && "Would the Pope watch this?"}
-            {level === 10 && "Only content approved by the Council of Trent"}
+          {/* About link */}
+          <div className="mt-6 text-center">
+            <a href="/about" className="text-[10px] text-gray-500 hover:text-gray-400 underline">
+              About this site
+            </a>
           </div>
         </div>
       </main>

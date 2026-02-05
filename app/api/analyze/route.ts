@@ -26,44 +26,29 @@ export async function POST(request: NextRequest) {
     const prompt = `You are a media content analyst. Analyze the movie or TV show "${title}" from a ${perspectiveDescription}.
 
 Your task:
-1. Search for information about "${title}" including plot, themes, reviews, AND any controversies or cultural discourse surrounding it
-2. Analyze BOTH the on-screen content AND the meta-level context:
-   - ON-SCREEN: What happens in the story, characters, themes, explicit content
-   - META/SUBTEXT: Casting decisions, production choices, cultural messaging, industry politics, public controversies, what critics and audiences from this perspective have said
-3. Provide a rating from 1-10 where:
-   - For levels 0-4 (progressive): Higher scores mean more inclusive/progressive content
-   - For levels 5-10 (conservative): Higher scores mean more family-friendly/traditional content
+1. Search for information about "${title}" including plot, themes, reviews, AND any controversies
+2. Analyze BOTH on-screen content AND meta context (casting, production choices, controversies)
+3. Rate from 1-10: ${level <= 4 ? 'Higher = more progressive/inclusive' : 'Higher = more family-friendly/traditional'}
 
-Focus on aspects relevant to the ${perspectiveLabel} viewpoint:
-
-ON-SCREEN CONTENT:
+Focus on ${perspectiveLabel} viewpoint concerns:
 ${level <= 4 ?
-  '- LGBTQ+ characters and relationships\n- Diverse casting and representation\n- Progressive themes and messages\n- Subversion of traditional gender roles' :
-  '- Traditional family structures\n- Religious or moral messaging\n- Sexual content, violence, language\n- Respect for traditional values'}
+  '- LGBTQ+ representation, diverse casting, progressive themes, subversion of traditional roles\n- Diverse cast/crew hiring, studio activism, breaking barriers' :
+  '- Traditional family values, religious messaging, explicit content levels\n- Race-swapping, political agenda in casting, diversity over story, actor politics'}
 
-META/SUBTEXT (equally important):
-${level <= 4 ?
-  '- Hiring of diverse cast/crew\n- Studio support for progressive causes\n- Breaking industry barriers\n- Cultural impact on representation' :
-  '- Race-swapping from source material\n- Perceived political agenda in casting/writing\n- Changes made for "diversity" over story\n- Controversy and backlash from traditional audiences\n- Actor/director political statements'}
-
-Return ONLY a JSON object with this exact structure (no markdown, no code blocks):
+Return ONLY valid JSON (no markdown):
 {
-  "title": "exact title of the media",
+  "title": "exact title",
   "type": "movie" or "tv_show",
-  "year": "release year if known",
-  "summary": "2-3 sentences covering BOTH the story content AND the meta/cultural context from this perspective",
-  "rating": number from 1-10,
-  "ratingExplanation": "brief explanation considering both content and subtext",
-  "concerns": [
-    {"issue": "specific concern", "severity": "low|moderate|high", "details": "brief details"}
-  ],
-  "positives": ["positive aspect 1", "positive aspect 2"],
-  "sources": [
-    {"title": "source name", "url": "source url"}
-  ]
+  "year": "release year",
+  "summary": "1-2 sentences: brief plot + key perspective-relevant point",
+  "rating": 1-10,
+  "ratingExplanation": "1 sentence why",
+  "concerns": [{"issue": "short label", "severity": "low|moderate|high", "details": "brief"}],
+  "positives": ["positive 1", "positive 2"],
+  "sources": [{"title": "source", "url": "url"}]
 }
 
-Include 2-4 concerns (mix of on-screen and meta issues) and 2-4 positives. Include 2-4 real source URLs.`;
+Include 2-4 concerns, 2-4 positives, 2-4 sources.`;
 
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
@@ -149,8 +134,24 @@ Include 2-4 concerns (mix of on-screen and meta issues) and 2-4 positives. Inclu
     return NextResponse.json({ status: 'success', data: analysis });
   } catch (error) {
     console.error('Analysis error:', error);
+
+    // Provide more specific error messages
+    let errorMessage = 'Failed to analyze media. Please try again.';
+
+    if (error instanceof Error) {
+      if (error.message.includes('timeout') || error.message.includes('ETIMEDOUT')) {
+        errorMessage = 'Request timed out. The search took too long - please try again.';
+      } else if (error.message.includes('rate') || error.message.includes('429')) {
+        errorMessage = 'Too many requests. Please wait a moment and try again.';
+      } else if (error.message.includes('API key') || error.message.includes('401')) {
+        errorMessage = 'API configuration error. Please contact the site administrator.';
+      } else if (error.message.includes('network') || error.message.includes('ECONNREFUSED')) {
+        errorMessage = 'Network error. Please check your connection and try again.';
+      }
+    }
+
     return NextResponse.json(
-      { status: 'error', error: 'Failed to analyze media. Please try again.' },
+      { status: 'error', error: errorMessage },
       { status: 500 }
     );
   }
