@@ -36,7 +36,6 @@ export default function ReportPage() {
       const result = await response.json();
       if (result.status === 'success') {
         setAnalysis(result.data);
-        // Update cache
         const cacheKey = getCacheKey(title, level);
         localStorage.setItem(cacheKey, JSON.stringify(result.data));
       } else {
@@ -69,7 +68,6 @@ export default function ReportPage() {
         setAnalysis(data);
         setLoading(false);
         sessionStorage.removeItem('analysisResult');
-        // Also cache in localStorage for sharing
         const cacheKey = getCacheKey(data.title, level);
         localStorage.setItem(cacheKey, sessionStored);
         return;
@@ -104,7 +102,6 @@ export default function ReportPage() {
         const result = await response.json();
         if (result.status === 'success') {
           setAnalysis(result.data);
-          // Cache result
           const cacheKey = getCacheKey(title, level);
           localStorage.setItem(cacheKey, JSON.stringify(result.data));
         } else {
@@ -122,21 +119,19 @@ export default function ReportPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex flex-col">
-        <header className="border-b border-gray-800 p-4">
-          <div className="max-w-2xl mx-auto">
-            <Link href="/" className="text-lg font-bold text-green-500 uppercase tracking-wider hover:text-green-400">
-              TV Ratings
-            </Link>
-          </div>
+      <div className="min-h-screen flex flex-col">
+        <header className="px-6 py-4 border-b border-[#E0E0E0]">
+          <Link href="/" className="text-heading hover:text-[#E65100]">
+            TV Ratings
+          </Link>
         </header>
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin h-12 w-12 border-4 border-green-500 border-t-transparent rounded-full mx-auto mb-4" />
-            <p className="text-gray-400 uppercase tracking-wider text-sm">
-              Analyzing from {getPerspectiveLabel(level)} perspective...
+            <div className="spinner mx-auto mb-6" />
+            <p className="text-body text-[#757575]">
+              Analyzing from {getPerspectiveLabel(level)} perspective
             </p>
-            <p className="text-gray-600 text-xs mt-2">{elapsedTime.toFixed(1)}s</p>
+            <p className="text-caption text-[#9E9E9E] mt-2">{elapsedTime.toFixed(1)}s</p>
           </div>
         </main>
       </div>
@@ -145,26 +140,21 @@ export default function ReportPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-black flex flex-col">
-        <header className="border-b border-gray-800 p-4">
-          <div className="max-w-2xl mx-auto">
-            <Link href="/" className="text-lg font-bold text-green-500 uppercase tracking-wider hover:text-green-400">
-              TV Ratings
-            </Link>
-          </div>
+      <div className="min-h-screen flex flex-col">
+        <header className="px-6 py-4 border-b border-[#E0E0E0]">
+          <Link href="/" className="text-heading hover:text-[#E65100]">
+            TV Ratings
+          </Link>
         </header>
-        <main className="flex-1 flex items-center justify-center p-4">
-          <div className="max-w-md text-center">
-            <div className="bg-red-900/30 border border-red-800 rounded-lg p-6">
-              <h2 className="text-xl font-bold text-red-400 mb-2">Error</h2>
-              <p className="text-gray-400 text-sm mb-4">{error}</p>
-              <Link
-                href="/"
-                className="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded uppercase tracking-wider text-sm"
-              >
-                Try Again
-              </Link>
+        <main className="flex-1 flex items-center justify-center px-6">
+          <div className="max-w-md w-full">
+            <div className="error-box">
+              <h2 className="text-body font-semibold mb-2">Error</h2>
+              <p className="text-caption">{error}</p>
             </div>
+            <Link href="/" className="btn w-full mt-6 text-center">
+              Try Again
+            </Link>
           </div>
         </main>
       </div>
@@ -176,17 +166,15 @@ export default function ReportPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black flex flex-col">
-      <header className="border-b border-gray-800 p-4">
-        <div className="max-w-2xl mx-auto flex justify-between items-center">
-          <Link href="/" className="text-lg font-bold text-green-500 uppercase tracking-wider hover:text-green-400">
-            TV Ratings
-          </Link>
-        </div>
+    <div className="min-h-screen flex flex-col">
+      <header className="px-6 py-4 border-b border-[#E0E0E0]">
+        <Link href="/" className="text-heading hover:text-[#E65100]">
+          TV Ratings
+        </Link>
       </header>
 
-      <main className="flex-1 p-4">
-        <div className="max-w-2xl mx-auto py-2">
+      <main className="flex-1 px-6 py-8">
+        <div className="max-w-2xl mx-auto">
           <ResultCard
             analysis={analysis}
             onRegenerate={handleRegenerate}

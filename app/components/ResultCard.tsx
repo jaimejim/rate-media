@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { MediaAnalysis } from '@/lib/types';
-import ScoreDisplay from './ScoreDisplay';
 
 interface ResultCardProps {
   analysis: MediaAnalysis;
@@ -25,55 +24,51 @@ export default function ResultCard({ analysis, onRegenerate, isRegenerating }: R
   };
 
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden">
+    <div className="card">
       {/* Header */}
-      <div className="p-4 border-b border-gray-800">
-        <h2 className="text-xl font-bold text-white">{analysis.title}</h2>
-        <div className="flex flex-wrap items-center gap-2 mt-2">
-          <span className="text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded uppercase">
-            {analysis.type === 'tv_show' ? 'TV Show' : analysis.type === 'movie' ? 'Movie' : 'Media'}
-          </span>
-          {analysis.year && (
-            <span className="text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded">
-              {analysis.year}
-            </span>
-          )}
-          <span className="text-xs bg-blue-900/50 text-blue-400 px-2 py-1 rounded">
-            {analysis.perspectiveLabel} ({analysis.perspectiveLevel}/10)
-          </span>
-          {/* Action Icons */}
-          <div className="ml-auto flex items-center gap-1">
-            {/* Regenerate Icon */}
+      <div className="p-6 border-b border-[#E0E0E0]">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-title">{analysis.title}</h2>
+            <div className="flex items-center gap-4 mt-2 text-caption text-[#757575]">
+              <span>{analysis.type === 'tv_show' ? 'TV Show' : 'Movie'}</span>
+              {analysis.year && <span>{analysis.year}</span>}
+              <span>{analysis.perspectiveLabel}</span>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-2">
             {onRegenerate && (
               <button
                 onClick={onRegenerate}
                 disabled={isRegenerating}
-                className="p-1.5 text-gray-400 hover:text-yellow-400 transition-colors disabled:opacity-50"
-                title="Regenerate analysis"
+                className="p-2 text-[#757575] hover:text-[#1A1A1A] disabled:opacity-40"
+                title="Regenerate"
               >
                 <svg
                   className={`w-5 h-5 ${isRegenerating ? 'animate-spin' : ''}`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  strokeWidth={1.5}
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  <path strokeLinecap="square" strokeLinejoin="miter" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
               </button>
             )}
-            {/* Share Icon */}
             <button
               onClick={handleShare}
-              className="p-1.5 text-gray-400 hover:text-blue-400 transition-colors"
+              className="p-2 text-[#757575] hover:text-[#1A1A1A]"
               title="Share"
             >
               {copied ? (
-                <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <svg className="w-5 h-5 text-[#388E3C]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                  <path strokeLinecap="square" strokeLinejoin="miter" d="M5 13l4 4L19 7" />
                 </svg>
               ) : (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                  <path strokeLinecap="square" strokeLinejoin="miter" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                 </svg>
               )}
             </button>
@@ -81,62 +76,59 @@ export default function ResultCard({ analysis, onRegenerate, isRegenerating }: R
         </div>
       </div>
 
-      {/* Rating - moved up */}
-      <div className="p-4 border-b border-gray-800">
-        <ScoreDisplay
-          score={analysis.rating}
-          label="Rating"
-          subtitle={analysis.ratingExplanation}
-          size="large"
-        />
+      {/* Rating */}
+      <div className="p-6 border-b border-[#E0E0E0]">
+        <div className="flex items-baseline justify-between mb-4">
+          <span className="text-micro text-[#757575]">Rating</span>
+          <span className="text-display">{analysis.rating}<span className="text-body text-[#757575]">/10</span></span>
+        </div>
+
+        {/* Minimal progress bar */}
+        <div className="h-1 bg-[#E0E0E0]">
+          <div
+            className="h-full bg-[#1A1A1A] score-bar"
+            style={{ width: `${analysis.rating * 10}%` }}
+          />
+        </div>
+
+        <p className="mt-4 text-body text-[#757575]">{analysis.ratingExplanation}</p>
       </div>
 
       {/* Summary */}
-      <div className="p-4 border-b border-gray-800">
-        <h3 className="text-xs uppercase tracking-wider text-gray-500 mb-2">Summary</h3>
-        <p className="text-gray-300 text-sm leading-relaxed">{analysis.summary}</p>
+      <div className="p-6 border-b border-[#E0E0E0]">
+        <h3 className="text-micro text-[#757575] mb-3">Summary</h3>
+        <p className="text-body leading-relaxed">{analysis.summary}</p>
       </div>
 
-      {/* Concerns - Table Format */}
+      {/* Concerns */}
       {analysis.concerns && analysis.concerns.length > 0 && (
-        <div className="p-4 border-b border-gray-800">
-          <h3 className="text-xs uppercase tracking-wider text-gray-500 mb-3">Concerns</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-700">
-                  <th className="text-left py-2 pr-3 text-[10px] uppercase text-gray-500 font-medium w-20">Level</th>
-                  <th className="text-left py-2 pr-3 text-[10px] uppercase text-gray-500 font-medium w-32">Issue</th>
-                  <th className="text-left py-2 text-[10px] uppercase text-gray-500 font-medium">Details</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analysis.concerns.map((concern, index) => (
-                  <tr key={index} className="border-b border-gray-800/50 last:border-0">
-                    <td className="py-2 pr-3 align-top">
-                      <span className={`severity-${concern.severity} text-[10px] px-1.5 py-0.5 rounded uppercase font-bold`}>
-                        {concern.severity}
-                      </span>
-                    </td>
-                    <td className="py-2 pr-3 align-top text-white font-medium">{concern.issue}</td>
-                    <td className="py-2 align-top text-gray-400">{concern.details}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div className="p-6 border-b border-[#E0E0E0]">
+          <h3 className="text-micro text-[#757575] mb-4">Concerns</h3>
+          <div className="space-y-4">
+            {analysis.concerns.map((concern, index) => (
+              <div key={index} className="grid grid-cols-[80px_1fr] gap-4">
+                <span className={`text-micro severity-${concern.severity}`}>
+                  {concern.severity}
+                </span>
+                <div>
+                  <span className="text-body font-medium">{concern.issue}</span>
+                  <p className="text-caption text-[#757575] mt-1">{concern.details}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
 
       {/* Positives */}
       {analysis.positives && analysis.positives.length > 0 && (
-        <div className="p-4 border-b border-gray-800">
-          <h3 className="text-xs uppercase tracking-wider text-gray-500 mb-3">Positives</h3>
-          <ul className="space-y-1">
+        <div className="p-6 border-b border-[#E0E0E0]">
+          <h3 className="text-micro text-[#757575] mb-4">Positives</h3>
+          <ul className="space-y-2">
             {analysis.positives.map((positive, index) => (
-              <li key={index} className="flex items-start gap-2 text-sm">
-                <span className="text-green-500">+</span>
-                <span className="text-gray-300">{positive}</span>
+              <li key={index} className="text-body flex items-start gap-3">
+                <span className="text-[#388E3C] mt-1">+</span>
+                <span>{positive}</span>
               </li>
             ))}
           </ul>
@@ -145,8 +137,8 @@ export default function ResultCard({ analysis, onRegenerate, isRegenerating }: R
 
       {/* Sources */}
       {analysis.sources && analysis.sources.length > 0 && (
-        <div className="p-4">
-          <h3 className="text-xs uppercase tracking-wider text-gray-500 mb-2">Sources</h3>
+        <div className="p-6">
+          <h3 className="text-micro text-[#757575] mb-3">Sources</h3>
           <ul className="space-y-1">
             {analysis.sources.map((source, index) => (
               <li key={index}>
@@ -154,7 +146,7 @@ export default function ResultCard({ analysis, onRegenerate, isRegenerating }: R
                   href={source.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-400 hover:text-blue-300 text-xs underline"
+                  className="text-caption text-[#757575] hover:text-[#E65100]"
                 >
                   {source.title}
                 </a>

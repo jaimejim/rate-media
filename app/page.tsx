@@ -3,14 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createSlug } from '@/lib/slug';
-import {
-  getPerspectiveLabel,
-  getPerspectiveTagline,
-  getPerspectiveColor,
-  getPerspectiveAccent,
-  getCacheKey,
-  MediaAnalysis
-} from '@/lib/types';
+import { getPerspectiveLabel, getCacheKey, MediaAnalysis } from '@/lib/types';
 
 export default function Home() {
   const [title, setTitle] = useState('');
@@ -21,9 +14,6 @@ export default function Home() {
   const router = useRouter();
 
   const perspectiveLabel = getPerspectiveLabel(level);
-  const tagline = getPerspectiveTagline(level);
-  const bgColor = getPerspectiveColor(level);
-  const accentColor = getPerspectiveAccent(level);
 
   // Load cached slider value on mount
   useEffect(() => {
@@ -85,7 +75,6 @@ export default function Home() {
       const result = await response.json();
 
       if (result.status === 'success') {
-        // Cache the result
         const cacheKey = getCacheKey(title.trim(), level);
         localStorage.setItem(cacheKey, JSON.stringify(result.data));
         sessionStorage.setItem('analysisResult', JSON.stringify(result.data));
@@ -102,24 +91,22 @@ export default function Home() {
   };
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${bgColor} bg-black flex flex-col transition-all duration-500`}>
-      {/* Header */}
-      <header className="border-b border-gray-800 px-4 py-3">
-        <h1 className={`text-lg font-bold uppercase tracking-wider ${accentColor} transition-colors duration-300`}>
-          TV Ratings
-        </h1>
+    <div className="min-h-screen flex flex-col">
+      {/* Header - minimal */}
+      <header className="px-6 py-4 border-b border-[#E0E0E0]">
+        <h1 className="text-heading">TV Ratings</h1>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex items-start justify-center p-4 pt-6">
-        <div className="w-full max-w-md">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Perspective Slider */}
-            <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4">
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-xs uppercase tracking-wider text-gray-500">Perspective</span>
-                <span className={`text-sm font-bold ${accentColor} transition-colors duration-300`}>
-                  {level} — {perspectiveLabel}
+      <main className="flex-1 flex items-start justify-center px-6 py-8">
+        <div className="w-full max-w-lg">
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {/* Perspective Control */}
+            <div>
+              <div className="flex justify-between items-baseline mb-4">
+                <label className="text-micro text-[#757575]">Perspective</label>
+                <span className="text-body font-semibold">
+                  {level} / 10
                 </span>
               </div>
 
@@ -129,38 +116,37 @@ export default function Home() {
                 max="10"
                 value={level}
                 onChange={(e) => setLevel(parseInt(e.target.value))}
-                className="w-full mt-2"
+                className="w-full"
               />
 
-              <div className="flex justify-between text-[10px] text-gray-600 mt-1">
-                <span>Progressive</span>
-                <span>Traditional</span>
-              </div>
-
-              {/* Tagline */}
-              <div className={`mt-3 text-center ${accentColor} text-sm italic transition-colors duration-300`}>
-                {tagline}
+              <div className="flex justify-between mt-3">
+                <span className="text-caption text-[#757575]">Progressive</span>
+                <span className="text-caption font-medium">{perspectiveLabel}</span>
+                <span className="text-caption text-[#757575]">Traditional</span>
               </div>
             </div>
 
+            {/* Divider */}
+            <div className="divider" />
+
             {/* Title Input */}
-            <div className="bg-gray-900/80 border border-gray-800 rounded-lg p-4">
-              <label className="block text-xs uppercase tracking-wider text-gray-500 mb-2">
+            <div>
+              <label className="text-micro text-[#757575] block mb-2">
                 Title
               </label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Movie or TV show name"
-                className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-white placeholder-gray-600 focus:outline-none focus:border-green-500 text-base"
+                placeholder="Enter movie or TV show"
+                className="input"
                 disabled={isLoading}
               />
             </div>
 
             {/* Error */}
             {error && (
-              <div className="bg-red-900/30 border border-red-800 rounded p-3 text-red-400 text-xs">
+              <div className="error-box text-caption">
                 {error}
               </div>
             )}
@@ -169,15 +155,12 @@ export default function Home() {
             <button
               type="submit"
               disabled={isLoading}
-              className={`w-full ${isLoading ? 'bg-gray-700' : 'bg-green-600 hover:bg-green-700'} text-white font-bold py-3 rounded-lg uppercase tracking-wider text-sm transition-colors`}
+              className="btn w-full"
             >
               {isLoading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                  Analyzing... {elapsedTime.toFixed(1)}s
+                <span className="flex items-center justify-center gap-3">
+                  <span className="spinner" />
+                  Analyzing {elapsedTime.toFixed(1)}s
                 </span>
               ) : (
                 'Analyze'
@@ -185,10 +168,10 @@ export default function Home() {
             </button>
           </form>
 
-          {/* About link */}
-          <div className="mt-6 text-center">
-            <a href="/about" className="text-[10px] text-gray-500 hover:text-gray-400 underline">
-              About this site
+          {/* Footer link */}
+          <div className="mt-12 pt-8 border-t border-[#E0E0E0]">
+            <a href="/about" className="text-caption text-[#757575] hover:text-[#E65100]">
+              About
             </a>
           </div>
         </div>
