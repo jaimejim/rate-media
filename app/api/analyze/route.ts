@@ -14,8 +14,8 @@ const anthropic = new Anthropic({
 // Retry helper with exponential backoff
 async function withRetry<T>(
   fn: () => Promise<T>,
-  maxRetries: number = 3,
-  baseDelay: number = 1000
+  maxRetries: number = 4,
+  baseDelay: number = 2000
 ): Promise<T> {
   let lastError: Error | undefined;
 
@@ -24,18 +24,24 @@ async function withRetry<T>(
       return await fn();
     } catch (error) {
       lastError = error as Error;
-      const isRateLimit = lastError.message?.includes('429') ||
-                          lastError.message?.includes('rate') ||
-                          lastError.message?.includes('overloaded');
+      const errorMsg = lastError.message?.toLowerCase() || '';
+      const isRetryable = errorMsg.includes('429') ||
+                          errorMsg.includes('rate') ||
+                          errorMsg.includes('overloaded') ||
+                          errorMsg.includes('network') ||
+                          errorMsg.includes('timeout') ||
+                          errorMsg.includes('econnreset') ||
+                          errorMsg.includes('econnrefused') ||
+                          errorMsg.includes('socket');
 
-      // Only retry on rate limits or overloaded errors
-      if (!isRateLimit || attempt === maxRetries) {
+      // Only retry on retryable errors
+      if (!isRetryable || attempt === maxRetries) {
         throw lastError;
       }
 
-      // Exponential backoff: 1s, 2s, 4s
+      // Exponential backoff: 2s, 4s, 8s, 16s
       const delay = baseDelay * Math.pow(2, attempt);
-      console.log(`Rate limited, retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries})`);
+      console.log(`Retryable error (${errorMsg.substring(0, 50)}), retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries})`);
       await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
