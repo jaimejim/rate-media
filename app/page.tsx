@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { createSlug } from '@/lib/slug';
 import { getPerspectiveLabel, getCacheKey, MediaAnalysis } from '@/lib/types';
 
@@ -170,9 +171,9 @@ export default function Home() {
 
           {/* Footer link */}
           <div className="mt-12 pt-8 border-t border-[#E0E0E0]">
-            <a href="/about" className="text-caption text-[#757575] hover:text-[#E65100]">
+            <Link href="/about" className="text-caption text-[#757575] hover:text-[#E65100]">
               About
-            </a>
+            </Link>
           </div>
         </div>
       </main>
